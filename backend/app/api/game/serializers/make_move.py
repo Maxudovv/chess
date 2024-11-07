@@ -8,21 +8,13 @@ from app.models.game import Move, Game
 
 
 class MakeMoveSerializer(serializers.ModelSerializer):
-    output_move = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Move
         fields = (
             "game",
             "text",
-            "output_move",
         )
-
-    def get_output_move(self, data: dict):
-        game = data["game"]
-        board = game.get_board()
-        last_move = board.move_stack[-1]
-        return last_move.uci()
 
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -48,5 +40,5 @@ class MakeMoveSerializer(serializers.ModelSerializer):
             move_uci=self.validated_data["text"],
             source=Move.Source.user
         )
-        game.make_bot_move()
+        game.perform_stockfish_move()
         return game

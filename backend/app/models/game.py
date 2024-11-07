@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from stockfish import Stockfish
 
+from app.tasks import make_bot_move
+from config.utils import is_celery_alive
+
 
 class Game(models.Model):
     class Status(models.TextChoices):
@@ -46,8 +49,6 @@ class Game(models.Model):
     def make_move(self, move_uci: str, source: "Move.Source"):
         board = self.get_board()
         board.push_uci(move_uci)
-        print(f"{board.fen()=}")
-        print(f"{move_uci=}")
         Move.objects.create(
             game=self,
             number=len(board.move_stack),
@@ -60,13 +61,11 @@ class Game(models.Model):
         self.pgn = str(game)
         self.save(update_fields=["pgn"])
 
-    def make_bot_move(self):
-        stockfish = Stockfish(path="/opt/homebrew/bin/stockfish")
-        print("nigga", self.get_board().fen())
-        stockfish.set_fen_position(self.get_board().fen())
-        move_uci = stockfish.get_best_move()
-        self.make_move(move_uci=move_uci, source=Move.Source.bot)
-        return move_uci
+    def perform_stockfish_move(self):
+        if is_celery_alive():
+            make_bot_move.delay(str(self.id))
+        else:
+            make_bot_move(str(self.id))
 
 
 class Move(models.Model):

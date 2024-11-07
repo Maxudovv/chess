@@ -1,11 +1,21 @@
-# from stockfish import Stockfish
-#
-# stockfish = Stockfish(path="/opt/homebrew/bin/stockfish")
-#
-# # stockfish.make_moves_from_current_position(["e2e4", "e7e5"])
-# stockfish.set_fen_position("rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b KQkq - 0 1")
-# print(stockfish.get_board_visual())
-# stockfish.set_fen_position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+from stockfish import Stockfish
+import chess.pgn
+
+stockfish = Stockfish(path="/opt/homebrew/bin/stockfish")
+
+# stockfish.make_moves_from_current_position(["e2e4", "e7e5"])
+board = chess.Board()
+board.push_uci("e2e4")
+board.push_uci("e7e5")
+board.push_uci("d1h5")
+board.push_uci("b8c6")
+board.push_uci("f1c4")
+board.push_uci("g8f6")
+board.push_uci("h5f7")
+b = chess.pgn.Game.from_board(board)
+print(board)
+print(b)
+stockfish.set_fen_position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 # print(stockfish.get_board_visual())
 # # print(stockfish.get_evaluation())
 # # print(stockfish.get_board_visual())
@@ -38,7 +48,17 @@
 # print(board)
 # print(board.move_stack)
 #
-import chess
+import chess.engine
+from stockfish import Stockfish
 
-b = chess.Board(fen="rn1qkbnr/ppp2ppp/4p3/3p4/3P4/5P2/PPP2P1P/RNBQKB1R w KQkq - 0 5")
-print(b)
+# b = chess.Board()
+# stockfish = Stockfish("/opt/homebrew/bin/stockfish")
+# stockfish.set_fen_position(b.fen())
+# print(stockfish.get_best_move())
+# with chess.engine.SimpleEngine.popen_uci("/opt/homebrew/bin/stockfish") as engine:
+#     result = engine.play(b, chess.engine.Limit(time=1.0))
+#     print("Nigga", result.move.uci())
+
+
+
+"docker run -d --name rabbit rabbitmq:latest"

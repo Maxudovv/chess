@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  rabbit:
+    image: rabbitmq:latest
+    container_name: chess-rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: chess
+      RABBITMQ_DEFAULT_PASS: chess
+    ports:
+      - "5672:5672"
+      - "61613:61613"
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbit
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_DEFAULT_USER=chess
+      - RABBITMQ_DEFAULT_PASS=chess
+      - POSTGRES_DB=chess_db
+      - POSTGRES_USER=chess
+      - POSTGRES_PASSWORD=chess
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - STOCKFISH_HOST=engine
+      - STOCKFISH_PORT=4000
+      - STOCKFISH_PATH=/app/stockfish-src/stockfish
+    container_name: chess-celery
+    depends_on:
+      - rabbit
+    volumes:
+      - stockfish_socket:/stockfish_socket
+
+  postgres:
+    image: postgres:15
+    container_name: chess-db
+    environment:
+      POSTGRES_DB: chess_db
+      POSTGRES_USER: chess
+      POSTGRES_PASSWORD: chess
+    ports:
+      - "5432:5432"
+
+volumes:
+  stockfish_socket:
