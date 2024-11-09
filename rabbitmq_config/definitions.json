@@ -1,0 +1,33 @@
+{
+  "vhosts":[
+        {"name": "/"}
+  ],
+  "users": [
+    {
+      "name": "chess",
+      "password": "chess",
+      "tags": "administrator"
+    },
+    {
+      "name": "reader_user",
+      "password": "nopass",
+      "tags": "monitoring"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "chess",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "reader_user",
+      "vhost": "/",
+      "configure": "",
+      "write": "",
+      "read": ".*"
+    }
+  ]
+}

@@ -21,4 +21,6 @@ class GameCreateSerializer(serializers.ModelSerializer):
         instance.started_at = timezone.now()
         instance.pgn = '[Site "Chess"]'
         instance.save(update_fields=["status", "started_at", "pgn"])
+        if instance.colour == Game.Colour.black:
+            instance.perform_stockfish_move()
         return instance

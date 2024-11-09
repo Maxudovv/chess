@@ -1,20 +1,30 @@
+import json
+
 import pika
 
-credentials = pika.PlainCredentials('chess', 'chess')
+# credentials = pika.PlainCredentials('reader_user', password="")
 
 # Параметры подключения
 connection = pika.BlockingConnection(
-    pika.ConnectionParameters('localhost', port=5672, credentials=credentials))
+    pika.ConnectionParameters(
+        'localhost',
+        port=5672,
+        virtual_host='/',
+        credentials=pika.PlainCredentials('reader_user', 'nopass')
+    )
+)
 channel = connection.channel()
 
 # Объявление очереди (необходимо, чтобы убедиться, что она существует)
-game_id = "dff739a8-4a9e-4b8e-979b-491dd305069c"
+game_id = "b700ed6b-89e7-46cd-ae55-c8a31c3839d6"
 queue_name = f'game_{game_id}'
 
 
 # Функция обратного вызова для обработки сообщений
 def callback(ch, method, properties, body):
     print(f"Получено сообщение: {body.decode()}")
+    print(type(body.decode()))
+    print(json.loads(body))
     # Подтверждение обработки сообщения
     ch.basic_ack(delivery_tag=method.delivery_tag)
 

@@ -2,14 +2,21 @@ version: '3.8'
 
 services:
   rabbit:
-    image: rabbitmq:latest
+    image: rabbitmq:management
     container_name: chess-rabbit
     environment:
       RABBITMQ_DEFAULT_USER: chess
       RABBITMQ_DEFAULT_PASS: chess
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - ./rabbitmq_config:/etc/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     ports:
-      - "5672:5672"
-      - "61613:61613"
+      - "5672:5672"    # Порт для подключения к RabbitMQ
+      - "15672:15672"  # Порт для подключения к панели управления
+    command: >
+      sh -c "rabbitmq-plugins enable --offline rabbitmq_management && 
+             rabbitmq-server"
 
   celery-worker:
     build:
@@ -43,6 +50,10 @@ services:
       POSTGRES_PASSWORD: chess
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   stockfish_socket:
+  rabbitmq_data:
+  postgres_data:

@@ -7,6 +7,3 @@ from app.models import Game
 class StartNewGameAPIView(CreateAPIView):
     queryset = Game.objects.all()
     serializer_class = GameCreateSerializer
-
-
-

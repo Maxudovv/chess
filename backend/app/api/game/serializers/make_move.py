@@ -4,6 +4,7 @@ import chess.pgn
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from app.exceptions import GameOverException
 from app.models.game import Move, Game
 
 
@@ -33,6 +34,8 @@ class MakeMoveSerializer(serializers.ModelSerializer):
             board.parse_uci(move)
         except chess.IllegalMoveError:
             raise ValidationError("Illegal move")
+        if (game.colour == Game.Colour.white) != board.turn:
+            raise ValidationError("Not ready to make move")
 
     def save(self, **kwargs):
         game = self.validated_data["game"]
@@ -40,5 +43,8 @@ class MakeMoveSerializer(serializers.ModelSerializer):
             move_uci=self.validated_data["text"],
             source=Move.Source.user
         )
-        game.perform_stockfish_move()
+        try:
+            game.perform_stockfish_move()
+        except GameOverException:
+            game.perform_game_finish()
         return game
