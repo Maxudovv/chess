@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from app.models import Game
+from rabbit import Rabbit
 
 
 class GameCreateSerializer(serializers.ModelSerializer):
@@ -21,6 +22,8 @@ class GameCreateSerializer(serializers.ModelSerializer):
         instance.started_at = timezone.now()
         instance.pgn = '[Site "Chess"]'
         instance.save(update_fields=["status", "started_at", "pgn"])
+        rabbitmq = Rabbit()
+        rabbitmq.declare_queue(game_id=instance.id)
         if instance.colour == Game.Colour.black:
             instance.perform_stockfish_move()
         return instance

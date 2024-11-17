@@ -25,7 +25,7 @@
     {
       "user": "reader_user",
       "vhost": "/",
-      "configure": "",
+      "configure": ".*",
       "write": "",
       "read": ".*"
     }

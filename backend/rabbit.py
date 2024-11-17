@@ -18,9 +18,12 @@ class Rabbit:
             pika.ConnectionParameters(settings.RABBITMQ_HOST, port=settings.RABBITMQ_PORT, credentials=credentials))
         self._channel = self._conn.channel()
 
+    def declare_queue(self, game_id):
+        self._channel.queue_declare(f"game_{game_id}", durable=True)
+
     def send_move(self, game_id, move_uci):
         queue_name = f"game_{game_id}"
-        self._channel.queue_declare(queue_name)
+        self.declare_queue(game_id)
         body = json.dumps({"type": "move", "text": move_uci})
         self._channel.basic_publish(exchange='',
                                     routing_key=queue_name,
@@ -37,12 +40,15 @@ class Rabbit:
         body = json.dumps(
             {"type": "finish", "text": text, "reason": reason}
         )
-        self._channel.queue_declare(queue_name)
+        self.declare_queue(game_id)
         self._channel.basic_publish(
             exchange="",
             routing_key=queue_name,
             body=body
         )
+
+    def __del__(self):
+        self._conn.close()
 
 
 rabbitmq = Rabbit()

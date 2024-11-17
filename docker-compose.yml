@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   rabbit:
-    image: rabbitmq:management
+    image: pcloud/rabbitmq-stomp:latest
     container_name: chess-rabbit
     environment:
       RABBITMQ_DEFAULT_USER: chess
@@ -14,9 +14,7 @@ services:
     ports:
       - "5672:5672"    # Порт для подключения к RabbitMQ
       - "15672:15672"  # Порт для подключения к панели управления
-    command: >
-      sh -c "rabbitmq-plugins enable --offline rabbitmq_management && 
-             rabbitmq-server"
+      - "15674:15674"
 
   celery-worker:
     build:
